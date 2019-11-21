@@ -11,7 +11,7 @@ import lombok.Data;
  */
 @Validated
 @Data
-public class Error {
+public class ErrorResponse {
 
   @ApiModelProperty(value = "exception occurred time")
   @JsonProperty("timestamp")
