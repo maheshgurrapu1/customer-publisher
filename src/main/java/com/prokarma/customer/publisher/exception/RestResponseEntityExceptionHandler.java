@@ -7,17 +7,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import com.prokarma.customer.publisher.model.ErrorResponse;
+import io.jsonwebtoken.SignatureException;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-  @ExceptionHandler(value = {Exception.class})
+  @ExceptionHandler(Exception.class)
   protected ResponseEntity<Object> handleAllExceptions(RuntimeException ex, WebRequest request) {
 
     logger.error("Exception occurred: ", ex);
@@ -26,6 +27,19 @@ public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionH
             "Exception in processing data."),
         new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
   }
+
+
+  @ExceptionHandler(value = {SignatureException.class})
+  protected ResponseEntity<Object> handleSignatureExceptionExceptions(RuntimeException ex,
+      WebRequest request) {
+
+    logger.error("Exception occurred: ", ex);
+    return handleExceptionInternal(ex,
+        createErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR,
+            "Exception in processing data."),
+        new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
+  }
+
 
   @ExceptionHandler(value = ResponseStatusException.class)
   protected ResponseEntity<Object> handleKnownErrors(ResponseStatusException ex,

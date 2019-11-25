@@ -28,6 +28,7 @@ public class CustomersApiController implements CustomersApi {
           required = true) String applicationId,
       @ApiParam(value = "To identify source activity", required = true) @RequestHeader(
           value = "Activity-Id", required = true) String toIdentifySourceActivity) {
+
     customerService.publishToKafka(customer);
 
     return new ResponseEntity<>(HttpStatus.OK);

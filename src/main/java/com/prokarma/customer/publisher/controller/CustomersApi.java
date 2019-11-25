@@ -2,10 +2,9 @@ package com.prokarma.customer.publisher.controller;
 
 import javax.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
 import com.prokarma.customer.publisher.model.Customer;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -24,8 +23,8 @@ public interface CustomersApi {
       @ApiResponse(code = 401, message = "Unauthorized", response = Error.class),
       @ApiResponse(code = 403, message = "Forbidden", response = Error.class),
       @ApiResponse(code = 500, message = "Internal Server Error", response = Error.class)})
-  @RequestMapping(value = "/customers", produces = {"application/json"},
-      consumes = {"application/json"}, method = RequestMethod.POST)
+  @PostMapping(value = "/customers", produces = {"application/json"},
+      consumes = {"application/json"})
   ResponseEntity<Void> addCustomer(
       @ApiParam(value = "customer information",
           required = true) @Valid @RequestBody Customer customer,

@@ -1,0 +1,11 @@
+kafka:
+  bootstrap-servers: "${spring.embedded.kafka.brokers}"
+  topic: customer_topic
+jwt:
+ secret: cYh-@f_fvRbW9s5p
+ token:
+   validity:
+     minutes: 15
+     
+spring:  jpa:    hibernate:      ddl-auto: create-drop
+     
