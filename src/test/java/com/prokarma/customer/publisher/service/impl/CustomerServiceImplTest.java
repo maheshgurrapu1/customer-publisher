@@ -1,43 +1,113 @@
 package com.prokarma.customer.publisher.service.impl;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import java.util.concurrent.TimeUnit;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.producer.RecordMetadata;
+import org.apache.kafka.common.TopicPartition;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.BDDMockito;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Spy;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.KafkaException;
-import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.util.concurrent.FailureCallback;
+import org.springframework.util.concurrent.SettableListenableFuture;
+import org.springframework.util.concurrent.SuccessCallback;
+import com.google.gson.Gson;
 import com.prokarma.customer.publisher.model.Customer;
-import com.prokarma.customer.publisher.service.CustomerService;
 
-@SpringBootTest
-@EmbeddedKafka(partitions = 1, topics = {"customer_topic"})
+@ExtendWith(MockitoExtension.class)
 class CustomerServiceImplTest {
 
-  @Autowired
-  private CustomerService customerService;
+  @InjectMocks
+  private CustomerServiceImpl customerService;
 
-  @Autowired
-  private Receiver receiver;
+  @Mock
+  private KafkaTemplate<String, String> kafkaTemplate;
+
+  private Gson jsonConverter = new Gson();
+
+  @Spy
+  SettableListenableFuture<SendResult<String, String>> future;
 
 
-  @Test
-  void testPublishToKafka() throws InterruptedException {
-    customerService.publishToKafka(new Customer());
 
-    receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
-    assertThat(receiver.getLatch().getCount()).isEqualTo(0);
+  @BeforeEach
+  public void setUp() {
+    ReflectionTestUtils.setField(customerService, "jsonConverter", jsonConverter);
   }
 
   @Test
-  void testPublishToKafkaException() throws InterruptedException {
-    Mockito.doNothing().doThrow(new KafkaException("Kafka Exception")).when(customerService)
-        .publishToKafka(new Customer());
+  void testPublishToKafka_onSuccess() {
+
+    // KafkaOperations template = mock(KafkaOperations.class);
+
+
+    TopicPartition topicPartition = new TopicPartition("customer_topic", 1);
+    RecordMetadata recordMetadata =
+        new RecordMetadata(topicPartition, 1, 1, System.currentTimeMillis(), (long) 1, 1, 1);
+
+    ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>("", "");
+    SendResult<String, String> sendResult = new SendResult<>(producerRecord, recordMetadata);
+    future.set(sendResult);
+
+    BDDMockito.given(kafkaTemplate.send(BDDMockito.anyString(), BDDMockito.anyString()))
+        .willReturn(future);
+
+
+    BDDMockito.doAnswer(invocationOnMock -> {
+      SuccessCallback<SendResult<String, String>> listenableFutureCallback =
+          invocationOnMock.getArgument(0);
+      listenableFutureCallback.onSuccess(sendResult);
+      assertEquals(2L, sendResult.getRecordMetadata().offset());
+      assertEquals(1, sendResult.getRecordMetadata().partition());
+      return null;
+    }).when(future).addCallback(BDDMockito.any(SuccessCallback.class),
+        BDDMockito.any(FailureCallback.class));
+
     customerService.publishToKafka(new Customer());
 
-    receiver.getLatch().await(10000, TimeUnit.MILLISECONDS);
-    assertThat(receiver.getLatch().getCount()).isEqualTo(0);
+    verify(kafkaTemplate, times(1)).send(BDDMockito.any(), BDDMockito.any());
+
+
+  }
+
+  @Test
+  void testPublishToKafka_onFailure() {
+
+    ProducerRecord<String, String> producerRecord = new ProducerRecord<String, String>("", "");
+    TopicPartition topicPartition = new TopicPartition("customer_topic", 1);
+
+    RecordMetadata recordMetadata =
+        new RecordMetadata(topicPartition, 1, 1, System.currentTimeMillis(), (long) 1, 1, 1);
+    SendResult<String, String> sendResult = new SendResult<>(producerRecord, recordMetadata);
+
+    future.set(sendResult);
+    BDDMockito.given(kafkaTemplate.send(BDDMockito.anyString(), BDDMockito.anyString()))
+        .willReturn(future);
+
+    KafkaException kafkaException = new KafkaException("Test Exception");
+
+    BDDMockito.doAnswer(invocationOnMock -> {
+      FailureCallback failureCallback = invocationOnMock.getArgument(1);
+      failureCallback.onFailure(kafkaException);
+      return null;
+    }).when(future).addCallback(BDDMockito.any(SuccessCallback.class),
+        BDDMockito.any(FailureCallback.class));
+
+    customerService.publishToKafka(new Customer());
+    verify(kafkaTemplate, times(1)).send(BDDMockito.any(), BDDMockito.any());
+
+
+
   }
 
 
