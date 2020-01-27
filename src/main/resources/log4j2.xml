@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN" monitorInterval="30"
+	packages="com.prokarma.*">
+	<Properties>
+		<Property name="LOG_PATTERN">
+			[%d{yyy-MM-dd HH:mm:ss:SSS}] [%t]
+			[%X{X-B3-TraceId},%X{X-B3-SpanId},%X{X-B3-ParentSpanId},%X{X-Span-Export}]
+			%-5level %logger{36} - %spi%n
+		</Property>
+	</Properties>
+
+	<Appenders>
+		<Console name="ConsoleAppender" target="SYSTEM_OUT">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+		</Console>
+
+		<RollingFile name="FileAppender"
+			fileName="logs/log4j2-demo.log"
+			filePattern="logs/log4j2-demo-%d{yyyy-MM-dd}-%i.log">
+			<PatternLayout pattern="${LOG_PATTERN}" />
+			<Policies>
+				<SizeBasedTriggeringPolicy size="10MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="10" />
+		</RollingFile>
+
+		<Socket name="socket" host="127.0.0.1" port="15000">
+			<PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
+		</Socket>
+
+	</Appenders>
+
+	<Loggers>
+		<Root level="all" additivity="false">
+			<AppenderRef ref="ConsoleAppender" level="INFO" />
+		</Root>
+		<Logger name="com.prokarma" level="all" additivity="false">
+			<AppenderRef ref="socket" level="INFO" />
+			<AppenderRef ref="ConsoleAppender" level="INFO" />
+		</Logger>
+	</Loggers>
+
+</Configuration>

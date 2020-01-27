@@ -1,7 +1,6 @@
 package com.prokarma.customer.publisher.model;
 
 import java.math.BigDecimal;
-import java.util.Date;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotEmpty;
@@ -46,7 +45,7 @@ public class Customer {
   @Valid
   @JsonProperty("birthdate")
   @JsonFormat(pattern = "DD-MM-YYYY")
-  private Date birthdate = null;
+  private String birthdate = null;
 
   @ApiModelProperty(example = "India", required = true, value = "")
   @NotEmpty(message = "{customer.country.notempty}")
