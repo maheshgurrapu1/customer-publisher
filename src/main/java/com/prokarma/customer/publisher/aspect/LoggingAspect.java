@@ -23,20 +23,11 @@ public class LoggingAspect {
   @Pointcut("execution(@(@org.springframework.web.bind.annotation.RequestMapping *) * *(..))")
   private void requestMappingAnnotations() {}
 
-  @Pointcut("execution(public * *(..))")
-  protected void loggingPublicOperation() {}
-
-  @Pointcut("execution(* *.*(..))")
-  protected void loggingAllOperation() {}
-
   @Pointcut("execution(* *.*(..))")
   protected void allMethod() {}
 
-  @Pointcut("within(com.prokarma.server.user.api..*)  && @within(org.springframework.web.bind.annotation.RestController)")
-  public void restControllers() {}
-
   @Autowired
-  Gson objectMapperUtil;
+  private Gson gson;
 
   @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) "
       + "|| @annotation(org.springframework.web.bind.annotation.GetMapping)"
@@ -48,7 +39,7 @@ public class LoggingAspect {
 
   @Before("controller() && allMethod() && args(customer,..)")
   public void logBefore(JoinPoint joinPoint, Object customer) {
-    log.info("Request : {}", objectMapperUtil.toJson(customer));
+    log.info("Request : {}", gson.toJson(customer));
   }
 
   @AfterReturning(pointcut = "(controller() || requestMappingAnnotations()) && allMethod()",

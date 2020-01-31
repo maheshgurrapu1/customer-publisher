@@ -1,0 +1,187 @@
+swagger: '2.0'
+info:
+  description: Customer Publisher
+  version: 1.0.0
+  title: Customer Publisher
+  termsOfService: 'http://swagger.io/terms/'
+  contact:
+    email: mgurrapu@prokarma.com
+  license:
+    name: Apache 2.0
+    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
+host: 'localhost:8080'
+basePath: /v1
+tags:
+  - name: customers
+    description: publishes the customer information to kafka
+    externalDocs:
+      description: Find out more about our store
+      url: 'http://swagger.io'
+schemes:
+  - https
+produces:
+  - application/json
+consumes:
+  - application/json
+parameters:
+  Authorization:
+    in: header
+    name: Authorization
+    description: Authorization token that is received from /authenticate endpoint
+    required: true
+    type: string
+  Application-Id:
+    in: header
+    name: Application-Id
+    description: Application-Id
+    required: true
+    type: string
+  Activity-Id:
+    in: header
+    name: To identify source activity
+    description: 'DESKTOP, MOBILE'
+    required: true
+    type: string
+paths:
+  /customers:
+    post:
+      tags:
+        - customers
+      summary: create a new customer
+      description: This can only be done by the logged in user
+      operationId: addCustomer
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: customer
+          description: customer information
+          required: true
+          schema:
+            $ref: '#/definitions/Customer'
+        - $ref: '#/parameters/Authorization'
+        - $ref: '#/parameters/Application-Id'
+        - $ref: '#/parameters/Activity-Id'
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/Error'
+        '401':
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Error'
+        '403':
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Error'
+        '500':
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Error'
+securityDefinitions:
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: Authorization
+definitions:
+  Customer:
+    type: object
+    required:
+      - customerNumber
+      - firstName
+      - lastName
+      - birthdate
+      - country
+      - countryCode
+      - mobileNumber
+      - email
+      - customerStatus
+      - address
+    properties:
+      customerNumber:
+        type: string
+        minLength: 5
+        maxLength: 50
+        pattern: '^[a-zA-Z0-9]+$'
+      firstName:
+        type: string
+        minLength: 10
+        maxLength: 50
+      lastName:
+        type: string
+        minLength: 10
+        maxLength: 50
+      birthdate:
+        type: string
+        format: date
+        pattern: DD-MM-YYYY
+        example: DD-MM-YYYY
+      country:
+        type: string
+        example: India
+      countryCode:
+        type: string
+        minLength: 2
+        maxLength: 2
+        example: IN
+      mobileNumber:
+        type: number
+        maxLength: 10
+      email:
+        type: string
+        maxLength: 50
+        format: email
+        description: User Status
+        example: abc@gmail.com
+      customerStatus:
+        type: string
+        enum:
+          - Open
+          - Close
+          - Suspended
+          - Restored
+        description: >-
+          In database these values are stored as R,S,O & C R = Restored S =
+          Suspended O = Open C = Closed
+      address:
+        $ref: '#/definitions/Address'
+  Address:
+    type: object
+    required:
+      - addressLine1
+      - postalCode
+    properties:
+      addressLine1:
+        type: string
+        maxLength: 50
+      addressLine2:
+        type: string
+      street:
+        type: string
+      postalCode:
+        type: string
+        maxLength: 5
+  Error:
+    type: object
+    properties:
+      timestamp:
+        type: string
+        format: date
+        description: exception occurred time
+      statusCode:
+        type: integer
+        description: status code of the error
+      error:
+        type: string
+        description: details of the exception
+      message:
+        type: string
+        description: reason for the exception
+      path:
+        type: string
+        description: path/api endpoint

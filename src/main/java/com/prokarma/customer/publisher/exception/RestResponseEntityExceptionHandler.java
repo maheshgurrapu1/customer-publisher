@@ -7,55 +7,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
-import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 import com.prokarma.customer.publisher.model.ErrorResponse;
-import io.jsonwebtoken.SignatureException;
 
 @RestControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
-
-  @ExceptionHandler(Exception.class)
-  protected ResponseEntity<Object> handleAllExceptions(RuntimeException ex, WebRequest request) {
-
-    logger.error("Exception occurred: ", ex);
-    return handleExceptionInternal(ex,
-        createErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR,
-            "Exception in processing data."),
-        new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-  }
-
-
-  @ExceptionHandler(value = {SignatureException.class})
-  protected ResponseEntity<Object> handleSignatureExceptionExceptions(RuntimeException ex,
-      WebRequest request) {
-
-    logger.error("Exception occurred: ", ex);
-    return handleExceptionInternal(ex,
-        createErrorResponse(request, HttpStatus.INTERNAL_SERVER_ERROR,
-            "Exception in processing data."),
-        new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
-  }
-
-
-  @ExceptionHandler(value = ResponseStatusException.class)
-  protected ResponseEntity<Object> handleKnownErrors(ResponseStatusException ex,
-      WebRequest request) {
-    logger.error("Exception occurred: ", ex);
-    return handleExceptionInternal(ex,
-        createErrorResponse(request, ex.getStatus(), ex.getMessage()).toString(), new HttpHeaders(),
-        ex.getStatus(), request);
-  }
 
   @Override
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
       MethodArgumentNotValidException exception, HttpHeaders headers, HttpStatus status,
       WebRequest request) {
 
-    logger.error("Exception occurred: ", exception);
     String errorMessage = exception.getBindingResult().getFieldErrors().stream()
         .map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining(", "));
     ErrorResponse exceptionResponse =

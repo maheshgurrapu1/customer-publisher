@@ -3,9 +3,7 @@
 	packages="com.prokarma.*">
 	<Properties>
 		<Property name="LOG_PATTERN">
-			[%d{yyy-MM-dd HH:mm:ss:SSS}] [%t]
-			[%X{X-B3-TraceId},%X{X-B3-SpanId},%X{X-B3-ParentSpanId},%X{X-Span-Export}]
-			%-5level %logger{36} - %spi%n
+			[%d{yyy-MM-dd HH:mm:ss:SSS}] [%t][%X{X-B3-TraceId},%X{X-B3-SpanId},%X{X-B3-ParentSpanId},%X{X-Span-Export}]	%-5level %logger{36} - %spi%n
 		</Property>
 	</Properties>
 
