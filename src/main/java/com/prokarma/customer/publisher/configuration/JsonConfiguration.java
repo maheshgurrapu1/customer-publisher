@@ -2,13 +2,13 @@ package com.prokarma.customer.publisher.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
 public class JsonConfiguration {
 
   @Bean
-  public Gson jsonConverter() {
-    return new Gson();
+  public ObjectMapper objectMapper() {
+    return new ObjectMapper();
   }
 }
