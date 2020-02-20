@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import com.prokarma.customer.publisher.common.JsonConverter;
+import com.prokarma.customer.publisher.dto.AddressDto;
 import com.prokarma.customer.publisher.dto.CustomerDto;
 import com.prokarma.customer.publisher.model.Customer;
 import com.prokarma.customer.publisher.service.CustomerService;
@@ -46,7 +47,11 @@ public class CustomerServiceImpl implements CustomerService {
 
   private CustomerDto convertToCustomerDto(Customer customer) {
     CustomerDto customerDto = new CustomerDto();
+    AddressDto addressDto = new AddressDto();
+    customerDto.setAddress(addressDto);
+
     BeanUtils.copyProperties(customer, customerDto);
+    BeanUtils.copyProperties(customer.getAddress(), customerDto.getAddress());
     return customerDto;
   }
 }

@@ -21,7 +21,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.util.concurrent.FailureCallback;
 import org.springframework.util.concurrent.SettableListenableFuture;
 import org.springframework.util.concurrent.SuccessCallback;
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.prokarma.customer.publisher.common.JsonConverter;
 import com.prokarma.customer.publisher.model.Customer;
 
 @ExtendWith(MockitoExtension.class)
@@ -33,7 +34,7 @@ class CustomerServiceImplTest {
   @Mock
   private KafkaTemplate<String, String> kafkaTemplate;
 
-  private Gson jsonConverter = new Gson();
+  private JsonConverter jsonConverter = new JsonConverter(new ObjectMapper());
 
   @Spy
   SettableListenableFuture<SendResult<String, String>> future;
