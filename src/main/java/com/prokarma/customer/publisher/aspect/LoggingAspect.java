@@ -9,7 +9,7 @@ import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import com.google.gson.Gson;
+import com.prokarma.customer.publisher.common.JsonConverter;
 
 @Component
 @Aspect
@@ -27,7 +27,7 @@ public class LoggingAspect {
   protected void allMethod() {}
 
   @Autowired
-  private Gson gson;
+  private JsonConverter jsonConverter;
 
   @Pointcut("@annotation(org.springframework.web.bind.annotation.RequestMapping) "
       + "|| @annotation(org.springframework.web.bind.annotation.GetMapping)"
@@ -39,7 +39,8 @@ public class LoggingAspect {
 
   @Before("controller() && allMethod() && args(customer,..)")
   public void logBefore(JoinPoint joinPoint, Object customer) {
-    log.info("Request : {}", gson.toJson(customer));
+    String json = jsonConverter.toJson(customer);
+    log.info("Request : {}", json);
   }
 
   @AfterReturning(pointcut = "(controller() || requestMappingAnnotations()) && allMethod()",
