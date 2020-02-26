@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -36,11 +37,11 @@ public class LoggingAspect {
       + "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
   public void mappingAnnotations() {}
 
-  // @Before("controller() && allMethod() && args(customer,..)")
-  // public void logBefore(JoinPoint joinPoint, Object customer) {
-  // String json = jsonConverter.toJson(customer);
-  // log.info("Request : {}", json);
-  // }
+  @Before("controller() && allMethod() && args(customer,..)")
+  public void logBefore(JoinPoint joinPoint, Object customer) {
+    String json = jsonConverter.toJson(customer);
+    log.info("Request : {}", json);
+  }
 
   @AfterReturning(pointcut = "(controller() || requestMappingAnnotations()) && allMethod()",
       returning = "result")

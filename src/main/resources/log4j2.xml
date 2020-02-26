@@ -22,9 +22,9 @@
 			<DefaultRolloverStrategy max="10" />
 		</RollingFile>
 
-		<!-- <Socket name="socket" host="127.0.0.1" port="15000">
+		<Socket name="socket" host="127.0.0.1" port="15000">
 			<PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8" />
-		</Socket> -->
+		</Socket>
 
 	</Appenders>
 
@@ -33,7 +33,7 @@
 			<AppenderRef ref="ConsoleAppender" level="INFO" />
 		</Root>
 		<Logger name="com.prokarma" level="all" additivity="false">
-			<!-- <AppenderRef ref="socket" level="INFO" /> -->
+			<AppenderRef ref="socket" level="INFO" />
 			<AppenderRef ref="ConsoleAppender" level="INFO" />
 		</Logger>
 	</Loggers>
