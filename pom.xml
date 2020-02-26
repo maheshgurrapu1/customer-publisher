@@ -22,7 +22,10 @@
 		<springfox-version>2.9.2</springfox-version>
 		<spring-cloud-services.version>2.2.1.RELEASE</spring-cloud-services.version>
 		<spring-cloud.version>Hoxton.SR1</spring-cloud.version>
-
+		<spring.security.version>2.4.0.RELEASE</spring.security.version>
+		<spring.security.jwt.version>1.1.0.RELEASE</spring.security.jwt.version>
+		<jwt.version>0.9.1</jwt.version>
+		<rest-assured.version>3.0.3</rest-assured.version>
 	</properties>
 
 	<dependencies>
@@ -72,10 +75,25 @@
 		</dependency>
 
 
+		<!-- <dependency> <groupId>com.prokarma.jwt</groupId> <artifactId>jwt-service</artifactId> 
+			<version>0.0.1-SNAPSHOT</version> </dependency> -->
+
+
 		<dependency>
-			<groupId>com.prokarma.jwt</groupId>
-			<artifactId>jwt-service</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.security.oauth.boot</groupId>
+			<artifactId>spring-security-oauth2-autoconfigure</artifactId>
+		</dependency>
+
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-configuration-processor</artifactId>
+			<optional>true</optional>
 		</dependency>
 
 		<dependency>
@@ -102,6 +120,8 @@
 			<scope>runtime</scope>
 			<optional>true</optional>
 		</dependency>
+		
+		<!-- Test Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
@@ -126,6 +146,11 @@
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.rest-assured</groupId>
+			<artifactId>rest-assured</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
