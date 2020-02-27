@@ -14,8 +14,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
-import com.google.gson.Gson;
-import com.prokarma.jwt.model.AuthenticationResponse;
+import com.prokarma.customer.publisher.common.JsonConverter;
+import com.prokarma.customer.publisher.integration.JwtResponse;
 
 
 @AutoConfigureMockMvc
@@ -28,7 +28,7 @@ class CustomersControllerIntegrationTest {
   private MockMvc mockMvc;
 
   @Autowired
-  private Gson gson;
+  private JsonConverter jsonConverter;
 
   private HttpHeaders httpHeaders;
 
@@ -51,8 +51,8 @@ class CustomersControllerIntegrationTest {
       + "    \"addressLine2\": \"string\",\n" + "    \"street\": \"string\",\n"
       + "    \"postalCode\": \"12345\"\n" + "  }\n" + "}";
 
-  private String validLoginPayloaf =
-      "{\n" + "\"username\": \"mahesh\",\n" + "\"password\": \"mahesh\"\t\n" + "}";
+  private String validLoginPayloaf = "{\n" + "\"username\": \"devglan-client\",\n"
+      + "\"password\": \"devglan-secret\",\n" + "\"grant_type\": \"password\"}";
 
   private String authToken;
 
@@ -60,18 +60,21 @@ class CustomersControllerIntegrationTest {
   void setup() throws Exception {
     httpHeaders = new HttpHeaders();
 
-    httpHeaders.add("Activity-Id", "mobile");
-    httpHeaders.add("Application-Id", applicaitonId);
+    httpHeaders = new HttpHeaders();
+    httpHeaders.add("Authorization", "Basic ZGV2Z2xhbi1jbGllbnQ6ZGV2Z2xhbi1zZWNyZXQ=");
+    httpHeaders.add("cache-control", "no-cache");
+    httpHeaders.add("activity", "mobile");
+    httpHeaders.add("application_id", applicaitonId);
 
     MvcResult result = mockMvc
-        .perform(MockMvcRequestBuilders.post("/authenticate").content(validLoginPayloaf)
-            .contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON))
+        .perform(MockMvcRequestBuilders.post("/oauth/token").headers(httpHeaders)
+            .content(validLoginPayloaf)// .contentType(MediaType.APPLICATION_FORM_URLENCODED)
+            .accept(MediaType.APPLICATION_JSON))
         .andExpect(MockMvcResultMatchers.status().isOk()).andReturn();
     String authorizationToken = result.getResponse().getContentAsString();
 
-    AuthenticationResponse jwtResponse =
-        gson.fromJson(authorizationToken, AuthenticationResponse.class);
-    authToken = "Bearer " + jwtResponse.getJwtToken();
+    JwtResponse jwtResponse = jsonConverter.toObjct(authorizationToken, JwtResponse.class);
+    authToken = "Bearer " + jwtResponse.getAccessToken();
   }
 
   @Test
