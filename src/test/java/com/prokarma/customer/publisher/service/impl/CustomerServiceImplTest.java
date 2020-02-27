@@ -67,7 +67,7 @@ class CustomerServiceImplTest {
 
 
     when(jsonConverter.toJson(Mockito.any())).thenReturn("Some String val");
-    when(authHolder.getUser()).thenReturn("user-name");
+    when(authHolder.getUser()).thenReturn("Mahesh");
 
 
     SendResult<String, String> sendResult = Mockito.mock(SendResult.class);
@@ -94,7 +94,7 @@ class CustomerServiceImplTest {
   @SuppressWarnings("unchecked")
   void sendMessageFailure() throws JsonProcessingException {
     when(jsonConverter.toJson(Mockito.any())).thenReturn("Some String val");
-    when(authHolder.getUser()).thenReturn("user-name");
+    when(authHolder.getUser()).thenReturn("Mahesh");
 
     Throwable error = Mockito.mock(Throwable.class);
 

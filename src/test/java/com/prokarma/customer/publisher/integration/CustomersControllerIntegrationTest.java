@@ -9,6 +9,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.kafka.test.context.EmbeddedKafka;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -18,6 +19,7 @@ import io.restassured.response.Response;
 @EmbeddedKafka(partitions = 1, topics = {"${kafka.customer.topic.name}"})
 @ExtendWith(SpringExtension.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@DirtiesContext
 class CustomersControllerIntegrationTest {
 
   private HttpHeaders httpHeaders;
@@ -70,7 +72,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserUnauthorized() throws Exception {
+  void createCustomerUnauthorized() throws Exception {
     httpHeaders.add("authorization", "sadas");
 
     RestAssured.given().headers(httpHeaders).body(validJSONPayload).post("/customers").then()
@@ -80,7 +82,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserAuthorized() throws Exception {
+  void createCustomerAuthorized() throws Exception {
     httpHeaders.add("Authorization", authToken);
 
     RestAssured.given().headers(httpHeaders).contentType(ContentType.JSON).body(validJSONPayload)
@@ -90,7 +92,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserWithoutSufficentHeaders() throws Exception {
+  void createCustomerWithoutSufficentHeaders() throws Exception {
     httpHeaders = new HttpHeaders();
     httpHeaders.add("authorization", authToken);
 
@@ -101,7 +103,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserWithErrorInBody() throws Exception {
+  void createCustomerWithErrorInBody() throws Exception {
     httpHeaders.add("authorization", authToken);
 
     String firstNameInvalidJsonPayload = "{\r\n" + "  \"customerNumber\": \"Abcd123445\",\r\n"
@@ -121,7 +123,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserExpiredToken() throws Exception {
+  void createCustomerExpiredToken() throws Exception {
     httpHeaders.add("authorization",
         "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1NzQ4NDk4MjIsInVzZXJfbmFtZSI6ImRldmdsYW4tY2xpZW50IiwiYXV0aG9yaXRpZXMiOlsiUk9MRV9BRE1JTiJdLCJqdGkiOiJhZjQ4MzRhMC1jMzQ0LTRkYTAtYWRmMS04YzZjMjE0YTAwNGIiLCJjbGllbnRfaWQiOiJkZXZnbGFuLWNsaWVudCIsInNjb3BlIjpbInJlYWQiLCJ3cml0ZSIsInRydXN0Il19.O9J266LbClFRODsFwkULxIjqRywakjLivDlsJBIbJZg");
 
@@ -131,7 +133,7 @@ class CustomersControllerIntegrationTest {
   }
 
   @Test
-  void createUserInvalidToken() throws Exception {
+  void createCustomerInvalidToken() throws Exception {
     httpHeaders.add("authorization",
         "Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJ1c2VyIiwiZXhwIjoxM2NDE2MDJ9.Yd67ZM3eNyfyanO_N6LX6Ky-BkXETwNogDAf6R6XkOrW5U_I7HTPorjR7nAAB03PYflKBnEHObBPDPmBtuMUqw");
 

@@ -43,8 +43,6 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   public String publishToKafka(Customer customer) {
 
-
-
     try {
       String customerJson = jsonConverter.toJson(convertToCustomerDto(customer));
       Message<String> customerMessage =

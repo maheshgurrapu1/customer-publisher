@@ -10,10 +10,11 @@ import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.NoHandlerFoundException;
 import com.prokarma.customer.publisher.model.ErrorResponse;
 
 @RestControllerAdvice
-public class CustomersControllerAdvice { // extends ResponseEntityExceptionHandler {
+public class CustomersControllerAdvice {
 
   @ExceptionHandler(value = MethodArgumentNotValidException.class)
   protected ResponseEntity<Object> handleMethodArgumentNotValid(
@@ -41,18 +42,16 @@ public class CustomersControllerAdvice { // extends ResponseEntityExceptionHandl
         HttpStatus.BAD_REQUEST);
   }
 
-  @ExceptionHandler(JsonParseException.class)
-  protected ResponseEntity<Object> handleJsonException(RuntimeException ex, WebRequest request) {
 
-    return new ResponseEntity<>(
-        createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in processing data."),
-        new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+  @ExceptionHandler(NoHandlerFoundException.class)
+  public ResponseEntity<Object> unhandledPath(final NoHandlerFoundException e) {
+
+    return new ResponseEntity<>(createErrorResponse(HttpStatus.NOT_FOUND, "No handler found"),
+        HttpStatus.NOT_FOUND);
   }
-
 
   @ExceptionHandler(Exception.class)
   protected ResponseEntity<Object> handleAllExceptions(Exception ex, WebRequest request) {
-    ex.printStackTrace();
     return new ResponseEntity<>(
         createErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Exception in processing data."),
         new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);

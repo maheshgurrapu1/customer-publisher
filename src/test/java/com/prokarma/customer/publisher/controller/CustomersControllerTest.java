@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.ResponseEntity;
+import com.prokarma.customer.publisher.common.AuthenticationHolder;
 import com.prokarma.customer.publisher.model.Customer;
 import com.prokarma.customer.publisher.service.CustomerService;
 
@@ -26,12 +27,16 @@ class CustomersControllerTest {
   @Mock
   private Customer customer;
 
+  @Mock
+  private AuthenticationHolder authHolder;
+
   private final String empty = "";
 
 
   @Test
   void addCustomerWithSuccess() {
-    BDDMockito.doNothing().when(customerService).publishToKafka(customer);
+    // when(authHolder.getUser()).thenReturn("Mahesh");
+    BDDMockito.given(customerService.publishToKafka(customer)).willReturn("Hello");
     ResponseEntity<Void> response =
         customersApiController.addCustomer(customer, empty, empty, empty);
     assertThat(response).isNotNull();
