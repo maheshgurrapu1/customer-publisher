@@ -4,5 +4,5 @@ import com.prokarma.customer.publisher.model.Customer;
 
 public interface CustomerService {
 
-  void publishToKafka(Customer customer);
+  String publishToKafka(Customer customer);
 }

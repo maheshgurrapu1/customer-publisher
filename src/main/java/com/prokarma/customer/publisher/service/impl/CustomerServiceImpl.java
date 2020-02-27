@@ -1,12 +1,18 @@
 package com.prokarma.customer.publisher.service.impl;
 
-import org.apache.kafka.common.KafkaException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+import com.prokarma.customer.publisher.common.AuthenticationHolder;
 import com.prokarma.customer.publisher.common.JsonConverter;
 import com.prokarma.customer.publisher.dto.AddressDto;
 import com.prokarma.customer.publisher.dto.CustomerDto;
@@ -23,26 +29,46 @@ public class CustomerServiceImpl implements CustomerService {
 
   private String customerTopic;
 
+  private AuthenticationHolder authHoder;
+
   public CustomerServiceImpl(KafkaTemplate<String, String> kafkaTemplate,
-      JsonConverter jsonConverter, @Value("${kafka.customer.topic.name}") String customerTopic) {
-    super();
+      JsonConverter jsonConverter, @Value("${kafka.customer.topic.name}") String customerTopic,
+      AuthenticationHolder authHoder) {
     this.kafkaTemplate = kafkaTemplate;
     this.jsonConverter = jsonConverter;
     this.customerTopic = customerTopic;
+    this.authHoder = authHoder;
   }
 
   @Override
-  public void publishToKafka(Customer customer) {
+  public String publishToKafka(Customer customer) {
 
-    String customerJson = jsonConverter.toJson(convertToCustomerDto(customer));
 
-    kafkaTemplate.send(customerTopic, customerJson)
-        .addCallback(result -> LOGGER.info(String.format("Sent message=[%s] with offset=[%s]",
-            customerJson, result.getRecordMetadata().offset())), ex -> {
-              LOGGER.error(String.format("Unable to send message=[%s] due to : %s", customerJson,
-                  ex.getMessage()));
-              throw new KafkaException(ex); // TODO: Do we really need to handle?
-            });
+
+    try {
+      String customerJson = jsonConverter.toJson(convertToCustomerDto(customer));
+      Message<String> customerMessage =
+          MessageBuilder.withPayload(customerJson).setHeader(KafkaHeaders.TOPIC, customerTopic)
+              .setHeader("user", authHoder.getUser()).build();
+
+      kafkaTemplate.send(customerMessage).addCallback(this::onMessageSendSuccess,
+          this::onException);
+    } catch (Exception exception) {
+      throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,
+          "Error is processing request data.", exception);
+    }
+
+    return "Sending message to queue.";
+  }
+
+  private void onMessageSendSuccess(SendResult<String, String> sendResult) {
+    LOGGER.info("Message Sent successfully to topic: {}", sendResult);
+  }
+
+  private void onException(Throwable throwable) {
+    LOGGER.error("Error in sending message: {}", throwable, throwable);
+    throw new ResponseStatusException(HttpStatus.GATEWAY_TIMEOUT, "Unable to send message.",
+        throwable);
   }
 
   private CustomerDto convertToCustomerDto(Customer customer) {
