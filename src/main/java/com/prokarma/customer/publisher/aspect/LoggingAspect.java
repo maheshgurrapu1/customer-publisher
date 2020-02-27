@@ -37,7 +37,7 @@ public class LoggingAspect {
       + "|| @annotation(org.springframework.web.bind.annotation.DeleteMapping)")
   public void mappingAnnotations() {}
 
-  @Before("controller() && allMethod() && args(customer,..)")
+  @Before("controller() && allMethod() && args(..,customer)")
   public void logBefore(JoinPoint joinPoint, Object customer) {
     String json = jsonConverter.toJson(customer);
     log.info("Request : {}", json);

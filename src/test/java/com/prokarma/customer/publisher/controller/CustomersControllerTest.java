@@ -38,7 +38,7 @@ class CustomersControllerTest {
     // when(authHolder.getUser()).thenReturn("Mahesh");
     BDDMockito.given(customerService.publishToKafka(customer)).willReturn("Hello");
     ResponseEntity<Void> response =
-        customersApiController.addCustomer(customer, empty, empty, empty);
+        customersApiController.addCustomer(empty, empty, empty, customer);
     assertThat(response).isNotNull();
     assertThat(response.getStatusCodeValue()).isEqualTo(200);
 
@@ -48,11 +48,8 @@ class CustomersControllerTest {
   void addCustomerWithFailure() {
     BDDMockito.doThrow(new RuntimeException("Something Went Wrong")).when(customerService)
         .publishToKafka(customer);
-    // ResponseEntity<Void> response =
-    // customersApiController.addCustomer(customer, empty, empty, empty);
     assertThrows(RuntimeException.class,
-        () -> customersApiController.addCustomer(customer, empty, empty, empty));
-    // assertThat(response.getStatusCodeValue()).isEqualTo(200);
+        () -> customersApiController.addCustomer(empty, empty, empty, customer));
 
   }
 

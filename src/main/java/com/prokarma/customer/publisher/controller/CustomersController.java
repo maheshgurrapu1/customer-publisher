@@ -21,10 +21,11 @@ public class CustomersController {
   }
 
   @PostMapping(value = "/customers")
-  public ResponseEntity<Void> addCustomer(@Valid @RequestBody Customer customer,
+  public ResponseEntity<Void> addCustomer(
       @RequestHeader(value = "Authorization", required = true) String authorization,
       @RequestHeader(value = "Application-Id", required = true) String applicationId,
-      @RequestHeader(value = "Activity-Id", required = true) String toIdentifySourceActivity) {
+      @RequestHeader(value = "Activity-Id", required = true) String toIdentifySourceActivity,
+      @Valid @RequestBody Customer customer) {
 
     customerService.publishToKafka(customer);
 
